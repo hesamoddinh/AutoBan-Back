@@ -5,7 +5,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
 module.exports.getById = async function(id) {
-  var repair = await Repair.findByPk(id);
+  let repair = await Repair.findByPk(id);
   if (!repair) {
     throw new Error("Repair not found");
   }

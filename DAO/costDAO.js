@@ -5,7 +5,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
 module.exports.getById = async function(id) {
-  var cost = await Cost.findByPk(id);
+  let cost = await Cost.findByPk(id);
   if (!cost) {
     throw new Error("Cost not found");
   }

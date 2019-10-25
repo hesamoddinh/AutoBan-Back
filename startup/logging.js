@@ -4,7 +4,7 @@ const { timestamp, printf } = winston.format;
 
 module.exports = function() {
   const errorFormatter = printf(error => {
-    var stack = "";
+    let stack = "";
     if (error.stack) {
       stack = error.stack.replace(/[\r\n]+/g, "");
     }

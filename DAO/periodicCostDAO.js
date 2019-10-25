@@ -6,7 +6,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
 module.exports.getById = async function(id) {
-  var periodicCost = await PeriodicCost.findByPk(id, { include: [Cost] });
+  let periodicCost = await PeriodicCost.findByPk(id, { include: [Cost] });
   if (!periodicCost) {
     throw new Error("PeriodicCost not found");
   }
@@ -14,7 +14,7 @@ module.exports.getById = async function(id) {
 };
 
 module.exports.getByCostId = async function(costId) {
-  var periodicCost = await PeriodicCost.findOne({
+  let periodicCost = await PeriodicCost.findOne({
     where: { costId },
     include: [Cost]
   });

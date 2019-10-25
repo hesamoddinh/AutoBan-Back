@@ -10,7 +10,7 @@ function isLogin() {
 }
 
 function submitLogin() {
-  var param = {
+  let param = {
     username: $("input[name=uname]").val(),
     password: $("input[name=psw]").val()
   };
@@ -87,7 +87,7 @@ function getParts() {
   checkLogin();
   $("#parts").empty();
 
-  var urlParams = new URLSearchParams(window.location.search);
+  let urlParams = new URLSearchParams(window.location.search);
   $("#categoryId").val(urlParams.get("categoryId"));
   $.ajax({
     url: "../repairs/list-parts",
@@ -113,8 +113,8 @@ function openPart(id) {
 }
 
 function addCategory(contanerId, id, name) {
-  var container = $("#" + contanerId);
-  var option = $("<div />", {
+  let container = $("#" + contanerId);
+  let option = $("<div />", {
     class: "option"
   });
   let category = $("<div />", {
@@ -141,8 +141,8 @@ function addCategory(contanerId, id, name) {
 }
 
 function addService(contanerId, id, name) {
-  var container = $("#" + contanerId);
-  var option = $("<div />", {
+  let container = $("#" + contanerId);
+  let option = $("<div />", {
     class: "option"
   });
   let service = $("<div />", {
@@ -216,7 +216,7 @@ function togglePart(id) {
 
 function addCategoryToDB() {
   let categoryId = $("#categoryId").val();
-  var param = {
+  let param = {
     persianName: $("input[name=name]").val(),
     categoryId
   };
@@ -260,7 +260,7 @@ function addCategoryToDB() {
 }
 
 function addServiceToDB() {
-  var param = {
+  let param = {
     persianName: $("input[name=name]").val(),
     serviceId: $("#serviceId").val()
   };
@@ -305,7 +305,7 @@ function addServiceToDB() {
 }
 
 function removeServiceFromDB() {
-  var param = {
+  let param = {
     serviceId: $("#serviceId").val()
   };
   $.ajax({
@@ -327,7 +327,7 @@ function removeServiceFromDB() {
 }
 
 function removeCategoryFromDB() {
-  var param = {
+  let param = {
     categoryId: $("#categoryId").val()
   };
 
@@ -350,7 +350,7 @@ function removeCategoryFromDB() {
 }
 
 function addPartToDB() {
-  var param = {
+  let param = {
     categoryId: $("#categoryId").val(),
     persianName: $("input[name=name]").val(),
     type: $("input[name=type]").val(),
@@ -387,8 +387,8 @@ function addPartToDB() {
 }
 
 function addPart(contanerId, part) {
-  var container = $("#" + contanerId);
-  var option = $("<div />", { class: "option" });
+  let container = $("#" + contanerId);
+  let option = $("<div />", { class: "option" });
   $("<button />", {
     class: "accordion",
     onclick: "togglePart(" + part.id + ")",
@@ -446,7 +446,7 @@ function addPart(contanerId, part) {
 }
 
 function topnav() {
-  var x = document.getElementById("myTopnav");
+  let x = document.getElementById("myTopnav");
   if (x.className === "topnav") {
     x.className += " responsive";
   } else {
@@ -455,7 +455,7 @@ function topnav() {
 }
 
 function listCars() {
-  var param = {
+  let param = {
     mobileNumber: $("input[name=mobileNumber]").val()
   };
   console.log(param);
@@ -482,8 +482,8 @@ function listCars() {
 }
 
 function addCar(contanerId, car) {
-  var container = $("#" + contanerId);
-  var carDiv = $("<div />", {
+  let container = $("#" + contanerId);
+  let carDiv = $("<div />", {
     class: "car",
     style: `border: 1px solid #${car.color.code};`
   });

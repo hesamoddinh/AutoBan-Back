@@ -8,7 +8,7 @@ global.DAOs = rootRequire("startup/DAOs");
 process.env.NODE_CONFIG_DIR = path.join(__dirname, "./config");
 
 const errors = rootRequire("middlewares/errors");
-var app = express();
+let app = express();
 rootRequire("startup/logging")();
 rootRequire("startup/i18n");
 rootRequire("startup/routes")(app);
