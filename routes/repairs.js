@@ -2,7 +2,6 @@ const passport = require("passport");
 const express = require("express");
 const router = express.Router();
 const config = require("config");
-const path = require("path");
 
 const i18n = rootRequire("middlewares/i18n");
 const uploadFile = rootRequire("middlewares/uploadFile");
@@ -14,17 +13,14 @@ const RepairDAO = rootRequire("DAO/repairDAO");
 const ReceiptDAO = rootRequire("DAO/receiptDAO");
 
 router.post(
-  "/add-part-category",
+  "/part-category",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const persianName = req.body.persianName;
     const englishName = req.body.englishName;
     let partCategory = await PartDAO.addPartCategory(persianName, englishName);
-    return res.json({
-      success: true,
-      message: __("Part category added successfuly"),
-      partCategory
-    });
+    res.json({ partCategory });
+    next();
   }
 );
 
@@ -35,10 +31,8 @@ router.delete(
     const categoryId = req.query.categoryId;
     let partCategory = await PartDAO.getPartCategoryById(categoryId);
     await PartDAO.removePartCategory(partCategory);
-    return res.json({
-      success: true,
-      message: __("Part category deleted successfuly")
-    });
+    res.json({ message: __("Part category deleted successfuly") });
+    next();
   }
 );
 
@@ -53,61 +47,51 @@ router.put(
     partCategory.persianName = persianName;
     partCategory.englishName = englishName;
     partCategory = await PartDAO.updatePartCategory(partCategory);
-    return res.json({
-      success: true,
-      message: __("Part category updated successfuly"),
-      partCategory
-    });
+    res.json({ partCategory });
+    next();
   }
 );
 
 router.get(
-  "/list-part-categories",
+  "/part-categories",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let partCategories = await PartDAO.listPartCategory();
-    return res.json({ success: true, partCategories });
+    res.json({ partCategories });
+    next();
   }
 );
 
 router.post(
-  "/add-part",
+  "/part",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let part = await PartDAO.addPart(req.body);
-    return res.json({
-      success: true,
-      message: __("Part added successfuly"),
-      part
-    });
+    res.json({ part });
+    next();
   }
 );
 
 router.post(
-  "/list-parts",
+  "/parts/:categoryId/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
-    const categoryId = req.body.categoryId;
+    const categoryId = req.params.categoryId;
     let parts = await PartDAO.listPartByCategory(categoryId);
-    return res.json({ success: true, parts: parts });
+    res.json({ parts });
+    next();
   }
 );
 
 router.post(
-  "/add-service",
+  "/service",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const persianName = req.body.persianName;
     const englishName = req.body.englishName;
-    let carService = await CarServiceDAO.add(
-      persianName,
-      englishName
-    );
-    return res.json({
-      success: true,
-      message: __("car service added successfuly"),
-      carService
-    });
+    let carService = await CarServiceDAO.add(persianName, englishName);
+    res.json({ carService });
+    next();
   }
 );
 
@@ -122,11 +106,8 @@ router.put(
     carService.persianName = persianName;
     carService.englishName = englishName;
     carService = await CarServiceDAO.update(carService);
-    return res.json({
-      success: true,
-      message: __("car service updated successfuly"),
-      carService
-    });
+    res.json({ carService });
+    next();
   }
 );
 
@@ -137,24 +118,23 @@ router.delete(
     const serviceId = req.query.serviceId;
     let carService = await CarServiceDAO.getById(serviceId);
     await CarServiceDAO.remove(carService);
-    return res.json({
-      success: true,
-      message: __("car service deleted successfuly")
-    });
+    res.json({ message: __("car service deleted successfuly") });
+    next();
   }
 );
 
 router.get(
-  "/list-services",
+  "/services",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let carServices = await CarServiceDAO.list();
-    return res.json({ success: true, carServices });
+    res.json({ carServices });
+    next();
   }
 );
 
 router.post(
-  "/add-repair",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const title = req.body.title;
@@ -186,16 +166,13 @@ router.post(
       req.user.id,
       carId
     );
-    return res.json({
-      success: true,
-      message: __("Repair added successfuly"),
-      repair
-    });
+    res.json({ repair });
+    next();
   }
 );
 
 router.put(
-  "/repair",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const repairId = req.body.id;
@@ -219,16 +196,13 @@ router.put(
     repair.garageName = garageName;
     repair.garageId = garageId;
     repair = await RepairDAO.update(repair);
-    return res.json({
-      success: true,
-      message: __("Repair updated successfuly"),
-      repair
-    });
+    res.json({ repair });
+    next();
   }
 );
 
 router.delete(
-  "/repair",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const repairId = req.query.repairId;
@@ -237,15 +211,13 @@ router.delete(
       throw new Error("You can remove only repair that you added");
     }
     await RepairDAO.remove(repair);
-    return res.json({
-      success: true,
-      message: __("Repair deleted successfuly")
-    });
+    res.json({ message: __("Repair deleted successfuly") });
+    next();
   }
 );
 
 router.post(
-  "/add-receipt",
+  "/receipt",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const title = req.body.title || __("Receipt");
@@ -277,11 +249,8 @@ router.post(
       repairId
     );
     // await ReceiptDAO.updateRepairCost(repair);
-    return res.json({
-      success: true,
-      message: __("Receipt added successfuly"),
-      receipt
-    });
+    res.json({ receipt });
+    next();
   }
 );
 
@@ -298,15 +267,13 @@ router.delete(
     }
     await ReceiptDAO.remove(receipt);
     // await ReceiptDAO.updateRepairCost(repair);
-    return res.json({
-      success: true,
-      message: __("Receipt deleted successfuly")
-    });
+    res.json({ message: __("Receipt deleted successfuly") });
+    next();
   }
 );
 
 router.get(
-  "/list-receipts",
+  "/receipts",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const repairId = req.query.repairId;
@@ -323,10 +290,8 @@ router.get(
         receipts[index].image = receipts[index].image.split(",");
       }
     }
-    return res.json({
-      success: true,
-      receipts
-    });
+    res.json({ receipts });
+    next();
   }
 );
 
@@ -348,25 +313,20 @@ router.put(
     await ReceiptDAO.addItems(receipt.id, services, products);
     await ReceiptDAO.updateReceiptCost(receipt);
     await ReceiptDAO.updateRepairCost(repair);
-    return res.json({
-      success: true,
-      message: __("Receipt Items updated successfuly"),
-      receipt
-    });
+    res.json({ receipt });
+    next();
   }
 );
 
 // serverAddress/repairs/list?carId=
 router.get(
-  "/list",
+  "/:carId",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
-    const carId = req.query.carId;
+    const carId = req.params.carId;
     let repairs = await RepairDAO.list(carId);
-    return res.json({
-      success: true,
-      repairs
-    });
+    res.json({ repairs });
+    next();
   }
 );
 

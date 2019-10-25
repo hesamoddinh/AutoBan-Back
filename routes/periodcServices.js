@@ -13,23 +13,20 @@ const CarServiceDAO = rootRequire("DAO/carServiceDAO");
 const PeriodicServiceDAO = rootRequire("DAO/periodicServiceDAO");
 
 const uploadFile = rootRequire("middlewares/uploadFile");
-const calculatePoint = rootRequire("middlewares/calculatePoint");
 const i18n = rootRequire("middlewares/i18n");
 
 router.get(
   "/service-items",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
-    serviceItems = await PartDAO.getPeriodicServiceItems();
-    return res.json({
-      success: true,
-      serviceItems
-    });
+    let serviceItems = await PartDAO.getPeriodicServiceItems();
+    res.json({ serviceItems });
+    next();
   }
 );
 
 router.post(
-  "/add",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     //req.body.image = receiptImage
@@ -95,41 +92,39 @@ router.post(
     let services = [{ serviceId: service.id }];
     await ReceiptDAO.addItems(receipt.id, services, serviceItems);
     await PeriodicServiceDAO.addItems(repair.id, serviceItems);
-    return res.json({
-      success: true,
+    res.json({
       periodicService: repair,
       receipt
     });
+    next();
   }
 );
 
 // Address: serverAddress/periodic-services/list?carId=
 router.get(
-  "/list",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const carId = req.query.carId;
     let periodicServices = await RepairDAO.listPeriodicService(carId);
-    return res.json({
-      success: true,
-      periodicServices
-    });
+    res.json({ periodicServices });
+    next();
   }
 );
 
 // Address: serverAddress/periodic-services/details?id=
 router.get(
-  "/details",
+  "/:serviceId",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
-    const id = req.query.id;
+    const id = req.params.serviceId;
     let serviceItems = await PeriodicServiceDAO.getByRepairId(id);
     let receipts = await ReceiptDAO.getByRepairId(id);
-    return res.json({
-      success: true,
+    res.json({
       serviceItems,
       receipts
     });
+    next();
   }
 );
 module.exports = router;

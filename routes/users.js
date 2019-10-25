@@ -12,12 +12,11 @@ const UserDAO = rootRequire("DAO/userDAO");
 const SMSTokenDAO = rootRequire("DAO/smsTokenDAO");
 
 // get mobileNumber in body and return token
-router.post("/get-sms-token", i18n, async (req, res, next) => {
+router.post("/sms-token", i18n, async (req, res, next) => {
   const mobileNumber = req.body.mobileNumber;
   token = await SMSTokenDAO.getToken(mobileNumber);
-  // await sms.sendSMS(mobileNumber, __("Your verification code to AutoBanApp is : %i", token.token));
-  // res.json({ success: true, message: __("Verification code sent") });
-  res.json({ success: true, token });
+  res.json({ token });
+  next();
 });
 
 // get token and mobileNumber in body and check token is valid and return jwt token for register or login
@@ -30,10 +29,8 @@ router.post("/check-sms-token", i18n, async (req, res, next) => {
       expiresIn: config.get("jwt_sms_token_exp_sec")
     }
   );
-  return res.json({
-    success: true,
-    token: "JWT " + token
-  });
+  res.json({ token: "JWT " + token });
+  next();
 });
 
 // Authenticate with username(mobileNumber or email) and password
@@ -43,17 +40,13 @@ router.post("/authenticate-password", i18n, async (req, res, next) => {
     throw new Error("Your Account dissabled by admin, please contact to admin");
   }
   isMatch = await UserDAO.comparePassword(req.body.password, user.password);
-  if (isMatch) {
-    user["password"] = "***";
-    const token = jwt.sign({ type: "AUTH", user }, config.get("JWTsecret"));
-    return res.json({
-      success: true,
-      token: "JWT " + token,
-      user
-    });
-  } else {
+  if (!isMatch) {
     throw new Error("Wrong Password");
   }
+  user["password"] = "***";
+  const token = jwt.sign({ type: "AUTH", user }, config.get("JWTsecret"));
+  res.json({ token: "JWT " + token, user });
+  next();
 });
 
 // Authenticate by token returend by /check-sms-token
@@ -69,18 +62,15 @@ router.get(
     }
     user["password"] = "***";
     const token = jwt.sign({ type: "AUTH", user }, config.get("JWTsecret"));
-    return res.json({
-      success: true,
-      token: "JWT " + token,
-      user
-    });
+    res.json({ token: "JWT " + token, user });
+    next();
   }
 );
 
 // register with password and token returned by check-sms-token
 // input (req.body): *firstName, *lastName, email, profilePic(file), refferal
 router.post(
-  "/register",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     console.log(req.body.firstName);
@@ -97,7 +87,7 @@ router.post(
       }
       req.inviter = referralUser.id;
     }
-    var profilePic = "";
+    let profilePic = "";
     if (!firstName || !lastName) {
       throw new Error("firstName and lastName required");
     }
@@ -119,7 +109,7 @@ router.post(
     );
     user["password"] = "***";
     const token = jwt.sign({ type: "AUTH", user }, config.get("JWTsecret"));
-    res.json({ success: true, token: "JWT " + token, user });
+    res.json({ token: "JWT " + token, user });
     if (refferal) {
       req.invitee = user.id;
     }
@@ -130,7 +120,7 @@ router.post(
 // update user profile information and if profilePic uploaded then update it
 // input (req.body): *firstName, *lastName, email, profilePic(file)
 router.put(
-  "/user",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let user = await UserDAO.getByIdSync(req.user.id);
@@ -147,11 +137,8 @@ router.put(
       );
     }
     user = await UserDAO.update(user);
-    return res.json({
-      success: true,
-      message: __("User information updated successfuly"),
-      user
-    });
+    res.json({ user });
+    next();
   }
 );
 
@@ -165,17 +152,22 @@ router.put(
     user = await UserDAO.getByIdSync(req.user.id);
     user.mobileNumber = smsToken.mobileNumber;
     user = await UserDAO.update(user);
-    return res.json({ success: true, user });
+    res.json({ user });
+    next();
   }
 );
 
 // return user profile information
 router.get(
-  "/profile",
+  "/:userId",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
+    if (req.user.id.toString() !== req.pramas.userId) {
+      throw new Error("You Can Get Your Profile Only");
+    }
     user = await UserDAO.getByIdSync(req.user.id);
-    return res.json({ success: true, user });
+    res.json({ user });
+    next();
   }
 );
 
@@ -185,7 +177,8 @@ router.get(
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     referrals = await UserDAO.getReferrals(req.user.code);
-    res.json({ success: true, referrals });
+    res.json({ referrals });
+    next();
   }
 );
 

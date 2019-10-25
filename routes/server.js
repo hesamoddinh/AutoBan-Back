@@ -6,7 +6,7 @@ const config = require("config");
 const i18n = rootRequire("middlewares/i18n");
 
 router.get("/app-version", i18n, async (req, res, next) => {
-  res.json({ success: true, version: config.get("application_version") });
+  res.json({ version: config.get("application_version") });
   next();
 });
 

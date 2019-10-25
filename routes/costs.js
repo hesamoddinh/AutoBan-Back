@@ -47,11 +47,8 @@ router.post(
     if (odometer && odometer > car.odometer) {
       await CarDAO.updateOdometer(car, odometer);
     }
-    return res.json({
-      success: true,
-      message: __("Fuel information added successfuly"),
-      fuel
-    });
+    res.json({ fuel });
+    next();
   }
 );
 
@@ -89,11 +86,8 @@ router.put(
     if (odometer && odometer > car.odometer) {
       await CarDAO.updateOdometer(car, odometer);
     }
-    return res.json({
-      success: true,
-      message: __("Fuel information updated successfuly"),
-      fuel
-    });
+    res.json({ fuel });
+    next();
   }
 );
 
@@ -109,7 +103,8 @@ router.delete(
       throw new Error("You can remove your car's cost only");
     }
     await CostDAO.remove(cost);
-    return res.json({ success: true, message: __("Fuel deleted successfuly") });
+    res.json({ message: __("Fuel deleted successfuly") });
+    next();
   }
 );
 
@@ -118,7 +113,8 @@ router.get(
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let fineCategories = await FineDAO.listFineCategory();
-    return res.json({ success: true, fineCategories });
+    res.json({ fineCategories });
+    next();
   }
 );
 
@@ -145,11 +141,8 @@ router.post(
     );
     let fine = await FineDAO.add(fineCode, cost.id);
     fine.dataValues.cost = cost;
-    return res.json({
-      success: true,
-      message: __("Fine information added successfuly"),
-      fine
-    });
+    res.json({ fine });
+    next();
   }
 );
 
@@ -177,11 +170,8 @@ router.put(
     fine = await FineDAO.update(fine);
     fine.cost = cost;
 
-    return res.json({
-      success: true,
-      message: __("Fine information updated successfuly"),
-      fine
-    });
+    res.json({ fine });
+    next();
   }
 );
 
@@ -197,7 +187,8 @@ router.delete(
       throw new Error("You can remove your car's cost only");
     }
     await CostDAO.remove(cost);
-    return res.json({ success: true, message: __("Fine deleted successfuly") });
+    res.json({ message: __("Fine deleted successfuly") });
+    next();
   }
 );
 
@@ -223,17 +214,10 @@ router.post(
       comment,
       carId
     );
-    let periodicCost = await PeriodicCostDAO.add(
-      type,
-      period,
-      cost.id
-    );
+    let periodicCost = await PeriodicCostDAO.add(type, period, cost.id);
     periodicCost.dataValues.cost = cost;
-    return res.json({
-      success: true,
-      message: __("PeriodicCost information added successfuly"),
-      periodicCost
-    });
+    res.json({ periodicCost });
+    next();
   }
 );
 
@@ -248,9 +232,7 @@ router.put(
     const type = req.body.type;
     const period = req.body.period;
 
-    let periodicCost = await PeriodicCostDAO.getById(
-      periodicCostId
-    );
+    let periodicCost = await PeriodicCostDAO.getById(periodicCostId);
     let cost = periodicCost.cost;
     let car = await CarDAO.getById(cost.carId);
     if (car.userId != req.user.id) {
@@ -265,11 +247,8 @@ router.put(
     periodicCost = await PeriodicCostDAO.update(periodicCost);
     periodicCost.cost = cost;
 
-    return res.json({
-      success: true,
-      message: __("PeriodicCost information updated successfuly"),
-      periodicCost
-    });
+    res.json({ periodicCost });
+    next();
   }
 );
 
@@ -278,19 +257,15 @@ router.delete(
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const periodicCostId = req.query.periodicCostId;
-    let periodicCost = await PeriodicCostDAO.getById(
-      periodicCostId
-    );
+    let periodicCost = await PeriodicCostDAO.getById(periodicCostId);
     let cost = periodicCost.cost;
     let car = await CarDAO.getById(cost.carId);
     if (car.userId != req.user.id) {
       throw new Error("You can remove your car's cost only");
     }
     await CostDAO.remove(cost);
-    return res.json({
-      success: true,
-      message: __("PeriodicCost deleted successfuly")
-    });
+    res.json({ message: __("PeriodicCost deleted successfuly") });
+    next();
   }
 );
 
@@ -314,11 +289,8 @@ router.post(
       comment,
       carId
     );
-    return res.json({
-      success: true,
-      message: __("Cost information added successfuly"),
-      cost
-    });
+    res.json({ cost });
+    next();
   }
 );
 
@@ -340,11 +312,8 @@ router.put(
     cost.value = value;
     cost.comment = comment;
     cost = await CostDAO.update(cost);
-    return res.json({
-      success: true,
-      message: __("Cost information updated successfuly"),
-      cost
-    });
+    res.json({ cost });
+    next();
   }
 );
 
@@ -359,10 +328,8 @@ router.delete(
       throw new Error("You can remove your car's cost only");
     }
     await CostDAO.remove(cost);
-    return res.json({
-      success: true,
-      message: __("Cost information deleted successfuly")
-    });
+    res.json({ message: __("Cost information deleted successfuly") });
+    next();
   }
 );
 
@@ -380,13 +347,10 @@ router.post(
     // let costs = await CostDAO.listByCar(carId, from, to);
     let fines = await FineDAO.listByCar(carId, from, to);
     let fuels = await FuelDAO.listByCar(carId, from, to);
-    let periodicCosts = await PeriodicCostDAO.listByCar(
-      carId,
-      from,
-      to
-    );
+    let periodicCosts = await PeriodicCostDAO.listByCar(carId, from, to);
     let otherCosts = await CostDAO.listOtherCostByCar(carId, from, to);
-    return res.json({ success: true, fines, fuels, periodicCosts, otherCosts });
+    res.json({ fines, fuels, periodicCosts, otherCosts });
+    next();
   }
 );
 
@@ -402,7 +366,8 @@ router.post(
       throw new Error("You can list your car's cost only");
     }
     let fuels = await FuelDAO.listByCar(carId, from, to);
-    return res.json({ success: true, fuels });
+    res.json({ fuels });
+    next();
   }
 );
 
@@ -418,7 +383,8 @@ router.post(
       throw new Error("You can list your car's cost only");
     }
     let fines = await FineDAO.listByCar(carId, from, to);
-    return res.json({ success: true, fines });
+    res.json({ fines });
+    next();
   }
 );
 
@@ -433,12 +399,9 @@ router.post(
     if (car.userId != req.user.id) {
       throw new Error("You can list your car's cost only");
     }
-    let periodicCosts = await PeriodicCostDAO.listByCar(
-      carId,
-      from,
-      to
-    );
-    return res.json({ success: true, periodicCosts });
+    let periodicCosts = await PeriodicCostDAO.listByCar(carId, from, to);
+    res.json({ periodicCosts });
+    next();
   }
 );
 
@@ -454,7 +417,8 @@ router.post(
       throw new Error("You can list your car's cost only");
     }
     let costs = await CostDAO.listOtherCostByCar(carId, from, to);
-    return res.json({ success: true, costs });
+    res.json({ costs });
+    next();
   }
 );
 
@@ -470,7 +434,8 @@ router.post(
       throw new Error("You can list your car's cost only");
     }
     let costs = await CostDAO.listCategorizedByCar(carId, from, to);
-    return res.json({ success: true, costs });
+    res.json({ costs });
+    next();
   }
 );
 

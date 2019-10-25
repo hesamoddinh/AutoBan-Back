@@ -17,8 +17,9 @@ const ColorDAO = rootRequire("DAO/colorDAO");
 const USER = config.get("user_type");
 const ADMIN = config.get("admin_type");
 
+// Add new Car
 router.post(
-  "/register",
+  "/",
   [
     passport.authenticate("jwt", { session: false }),
     i18n,
@@ -48,16 +49,17 @@ router.post(
       modelId,
       colorId
     );
-    res.json({ success: true, car });
+    res.json({ car });
     next();
   }
 );
 
+// Update A Car
 router.put(
-  "/update",
+  "/:carId/",
   [passport.authenticate("jwt", { session: false }), i18n, authorize([USER])],
   async (req, res, next) => {
-    const carId = req.body.carId;
+    const carId = req.params.carId;
     let user = await UserDAO.getByIdSync(req.user.id);
     let car = await CarDAO.getById(carId);
     const userId = user.id;
@@ -80,18 +82,17 @@ router.put(
       );
     }
     car = await CarDAO.update(car);
-    return res.json({
-      success: true,
-      message: __("Car information updated successfuly")
-    });
+    res.json({ car });
+    next();
   }
 );
 
+// delete A Car
 router.delete(
-  "/delete",
+  "/:carId/",
   [passport.authenticate("jwt", { session: false }), i18n, authorize([USER])],
   async (req, res, next) => {
-    const carId = req.query.carId;
+    const carId = req.params.carId;
     let user = await UserDAO.getByIdSync(req.user.id);
     let car = await CarDAO.getById(carId);
     const userId = user.id;
@@ -99,15 +100,17 @@ router.delete(
       throw new Error("You can remove your car only");
     }
     car = await CarDAO.remove(car);
-    return res.json({ success: true, message: __("Car deleted successfuly") });
+    res.json({ message: __("Car deleted successfuly") });
+    next();
   }
 );
 
+// Update Odometer Of A Car
 router.put(
-  "/odometer",
+  "/:carId/odometer",
   [passport.authenticate("jwt", { session: false }), i18n, authorize([USER])],
   async (req, res, next) => {
-    const carId = req.body.carId;
+    const carId = req.params.carId;
     const odometer = req.body.odometer;
     let user = await UserDAO.getByIdSync(req.user.id);
     let car = await CarDAO.getById(carId);
@@ -115,20 +118,19 @@ router.put(
       throw new Error("You can change your car information only");
     }
     car = await CarDAO.updateOdometer(car, odometer);
-    return res.json({
-      success: true,
-      message: __("Odometer updated successfuly")
-    });
+    res.json({ message: __("Odometer updated successfuly") });
+    next();
   }
 );
 
+// List All Car of a User
 router.get(
-  "/list",
+  "/",
   [passport.authenticate("jwt", { session: false }), i18n, authorize([USER])],
   async (req, res, next) => {
-    let user = await UserDAO.getByIdSync(req.user.id);
-    let cars = await CarDAO.list(user.id);
-    return res.json({ success: true, cars });
+    let cars = await CarDAO.list(req.user.id);
+    res.json({ cars });
+    next();
   }
 );
 
@@ -141,35 +143,39 @@ router.post(
     const mobileNumber = req.body.mobileNumber;
     let user = await UserDAO.getByUsername(mobileNumber);
     let cars = await CarDAO.list(user.id);
-    return res.json({ success: true, cars });
+    res.json({ cars });
+    next();
   }
 );
 
 router.get(
-  "/list-car-brands",
+  "/brands",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let carBrands = await CarBrandDAO.listCarBrands();
-    return res.json({ success: true, carBrands });
+    res.json({ carBrands });
+    next();
   }
 );
 
 router.post(
-  "/list-car-models",
+  "/models",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     const brandId = req.body.brandId;
     let carModels = await CarModelDAO.listCarModels(brandId);
-    return res.json({ success: true, carModels });
+    res.json({ carModels });
+    next();
   }
 );
 
 router.get(
-  "/list-colors",
+  "/colors",
   [passport.authenticate("jwt", { session: false }), i18n],
   async (req, res, next) => {
     let colors = await ColorDAO.list();
-    return res.json({ success: true, colors });
+    res.json({ colors });
+    next();
   }
 );
 
@@ -179,10 +185,11 @@ router.get(
   async (req, res, next) => {
     if (req.query.id) {
       let color = await ColorDAO.getById(req.query.id);
-      return res.json({ success: true, color });
+      res.json({ color });
     } else {
       let color = await ColorDAO.getByName(req.query.persianName);
-      return res.json({ success: true, color });
+      res.json({ color });
+      next();
     }
   }
 );
@@ -193,10 +200,11 @@ router.get(
   async (req, res, next) => {
     if (req.query.id) {
       let carModel = await CarModelDAO.getById(req.query.id);
-      return res.json({ success: true, carModel });
+      res.json({ carModel });
     } else {
       let carModel = await CarModelDAO.getByName(req.query.persianName);
-      return res.json({ success: true, carModel });
+      res.json({ carModel });
+      next();
     }
   }
 );
@@ -207,10 +215,11 @@ router.get(
   async (req, res, next) => {
     if (req.query.id) {
       let carBrand = await CarBrandDAO.getById(req.query.id);
-      return res.json({ success: true, carBrand });
+      res.json({ carBrand });
     } else {
       let carBrand = await CarBrandDAO.getByName(req.query.persianName);
-      return res.json({ success: true, carBrand });
+      res.json({ carBrand });
+      next();
     }
   }
 );
